@@ -11,7 +11,9 @@ session_start();
 if (isset($_POST['order_id']) && isset($_POST['payment_hash']) && !empty($_POST['order_id']) && !empty($_POST['payment_hash'])) {
     $PAYMENTID = (isset($_POST['order_id']) && !empty($_POST['order_id']) ? $_POST['order_id'] : '');
     $PAYMENT_HASH = (isset($_POST['payment_hash']) && !empty($_POST['payment_hash']) ? $_POST['payment_hash'] : '');
-    // log($PAYMENTID,$PAYMENT_HASH)
+    $PAN = $_POST['pan']; // ბარათის დამაკსული პანი რომლითაც მოხდა ანგარიშსწორება
+    $TRANSACTION_ID = $_POST['transaction_id']; // ტრანზაქციის იდენტიფიკატორი რომელიც საჭიროა რეკურენტული გადახდისთვის
+    // log($PAYMENTID,$PAYMENT_HASH,$PAN,$TRANSACTION_ID)
     foreach ($_SESSION['payment_hash'] as $key => $value) {
         if ($key == $PAYMENTID && $value == $PAYMENT_HASH) {
             header("HTTP/1.1 200 Ok");
