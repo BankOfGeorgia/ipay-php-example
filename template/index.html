@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>IPay Live Demo</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="container">
@@ -24,45 +24,36 @@
     <div class="content">
         <div class="images-container">
             <div class="main-image">
-                <img src="images/product1.png">
+                <img src="/images/product1.png">
             </div>
             <div class="thumbs">
-                <img src="images/product2.png">
-                <img src="images/product3.png">
-                <img src="images/product4.png">
-                <img src="images/product5.png">
+                <img src="../images/product2.png">
+                <img src="../images/product3.png">
+                <img src="../images/product4.png">
+                <img src="../images/product5.png">
             </div>
         </div>
         <div class="description">
+
             <div class="product-title">ტელევიზორი</div>
             <div class="product-price">1.00 ₾</div>
             <textarea rows="4" readonly="readonly" name="description" class="description-text">შემთხვევითად გენერირებული ტექსტი ეხმარება დიზაინერებს და ტიპოგრაფიული ნაწარმის შემქმნელებს, რეალურთან მაქსიმალურად მიახლოებული შაბლონი წარუდგინონ შემფასებელს.</textarea>
             <ipay-checkout></ipay-checkout>
+
         </div>
     </div>
 </div>
-<script id="SDK" type="text/javascript"
-        src="https://webstatic.bog.ge/ipay/IPaySDK.min.js?callback=IPayCallBack"></script>
-<script>
-
-    IPayCallBack = function () {
-        IpaySDK.Render('bright', {
-            href: '',
-            title: 'Pay with iPay',
-            alt: 'Pay with iPay',
-            target: '_self',
-            text: 'ყიდვა',
-            cssStyle: '',
-            data: [
-                {
-                    value: '',
-                    name: 'pay',
-                    class: '',
-                    type: 'hidden'
-                }
-            ]
-        });
-    }
-</script>
+<script id="SDK" type="text/javascript" src="button-sdk/IpaySDK.js?callback=IPayCallBack" async></script>
+<script> IPayCallBack = () => {
+    IpaySDK.Render('default', {
+        href: '',
+        title: 'Pay with iPay',
+        alt: 'Pay with iPay',
+        target: '_blank',
+        text: 'ყიდვა',
+        cssStyle: '',
+        data: [{value: '', name: 'pay', class: '', type: 'hidden'}]
+    });
+} </script>
 </body>
 </html>

@@ -4,24 +4,33 @@ session_start();
  * ვამოწმებთ თუ არსებობს პოსტი order_id და payment_hash-ით.
  * თუ სესიაში იძებნება მსგავსი გადახდა ვაბრუნდებთ header response code 200-ს  და თუ არა მაშინ შესაბამის კოდს.
  * ლინკის მაგალითი https://.ge/callback.php?order_id=your_order_id&payment_hash=your_payment_hash
- * https://upriani.ge/callback.php - ეს არის თქვენი მაღაზიის ქოლბექების მისამართი
+ * https://your_web_page_url/?callback=1&...... - ეს არის თქვენი მაღაზიის ქოლბექების მისამართი
  * p.s შეგიძლიათ შეცვალოთ სურვილისამებრ, ოღონდ უნდა მოგვაწოდოთ რომ ჩვენთან გაიწეროს
  * თუ თქვენგან არასწორი პასუხი დაბრუნდება, ქოლბექები გამეორდება 5 ჯერ და შემდეგ გადავა უარყოფილ სტატუსზე.
  */
-if (isset($_POST['order_id']) && isset($_POST['payment_hash']) && !empty($_POST['order_id']) && !empty($_POST['payment_hash'])) {
-    $PAYMENTID = (isset($_POST['order_id']) && !empty($_POST['order_id']) ? $_POST['order_id'] : '');
-    $PAYMENT_HASH = (isset($_POST['payment_hash']) && !empty($_POST['payment_hash']) ? $_POST['payment_hash'] : '');
+if (isset($_GET['callback']) && isset($_POST['order_id']) && isset($_POST['payment_hash']) && !empty($_POST['order_id']) && !empty($_POST['payment_hash'])) {
+    $ORDER_ID = (isset($_POST['order_id']) && !empty($_POST['order_id']) ? $_POST['order_id'] : null);
+    $PAYMENT_HASH = (isset($_POST['payment_hash']) && !empty($_POST['payment_hash']) ? $_POST['payment_hash'] : null);
+    $STATUS =  $_POST['status']; //გადახდის სტატუსი success||error
+    $STATUS_DESCRIPTION =  $_POST['status_description'];  //გადახდის სტატუსი აღწერა
+    $SHOP_ORDER_ID = (isset($_POST['shop_order_id']) && !empty($_POST['shop_order_id']) ? $_POST['shop_order_id'] : null); // მერჩანტის შეკვეთის იდენტიფიკატორი
     $PAN = $_POST['pan']; // ბარათის დამაკსული პანი რომლითაც მოხდა ანგარიშსწორება
     $TRANSACTION_ID = $_POST['transaction_id']; // ტრანზაქციის იდენტიფიკატორი რომელიც საჭიროა რეკურენტული გადახდისთვის
-    // log($PAYMENTID,$PAYMENT_HASH,$PAN,$TRANSACTION_ID)
+    $IPAY_PAYMENT_ID = $_POST['ipay_payment_id']; // გადახდის იდენტიფიკატორი რომელიც იბეჭდება ქვითარზე
+    // log($ORDER_ID,$PAYMENT_HASH)
     foreach ($_SESSION['payment_hash'] as $key => $value) {
-        if ($key == $PAYMENTID && $value == $PAYMENT_HASH) {
+        if ($key == $ORDER_ID && $value == $PAYMENT_HASH) {
             header("HTTP/1.1 200 Ok");
         } else {
             header("HTTP/1.0 404 Not Found");
         }
     }
 
+} elseif (isset($_GET['reversal']) && isset($_POST['order_id']) && isset($_POST['payment_hash']) && !empty($_POST['order_id']) && !empty($_POST['payment_hash'])) {
+    $PAYMENTID = (isset($_POST['order_id']) && !empty($_POST['order_id']) ? $_POST['order_id'] : null);
+    $PAYMENT_HASH = (isset($_POST['payment_hash']) && !empty($_POST['payment_hash']) ? $_POST['payment_hash'] : null);
+    $SHOP_ORDER_ID = (isset($_POST['shop_order_id']) && !empty($_POST['shop_order_id']) ? $_POST['shop_order_id'] : null); // მერჩანტის შეკვეთის იდენტიფიკატორი
+    //თქვენი refund-ის ლოგიკა
 } else {
     require_once "template/index.html";
     if (isset($_POST['pay']) & !empty($_POST)) {
@@ -35,8 +44,11 @@ if (isset($_POST['order_id']) && isset($_POST['payment_hash']) && !empty($_POST[
         $redirect_url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; // პარამეტრში ვუთითებთ იმ მისამართს რომელზეც უნდა გადმოვიდეს მომხმარებელი წარმატებული ან წარუმატებელი გადახდის შემდეგ
 
         $checkoutDetails = [
-            "intent" => "CAPTURE",
+            "intent" => "AUTHORIZE",
             "redirect_url" => "",
+            "shop_order_id" => "მაღაზიის_შეკვეთის_იდენტიფიკატორი", // არაა სავალდებულო
+            "card_transaction_id" => "",//რეკურენტული გადახდისთვისაა საჭირო. არაა სავალდებულო
+            "locale" => "ka", //ან en-US
             "purchase_units" => [
                 [
                     "amount" => [
@@ -64,7 +76,9 @@ if (isset($_POST['order_id']) && isset($_POST['payment_hash']) && !empty($_POST[
         $authorizationResponse = ipayAuthorization($ipayAuthorizationURL, $usernameAndPassword);
 
         if ($authorizationResponse["access_token"]) {
+            print_r($authorizationResponse);
             $checkoutResponse = ipayCheckout($authorizationResponse["access_token"], $ipayCheckoutURL, $checkoutDetails);
+            print_r($checkoutResponse);
             if (isset($checkoutResponse["status"])) {
                 foreach ($checkoutResponse["links"] as $link) {
                     if ($link["rel"] && $link["rel"] == "self") {
