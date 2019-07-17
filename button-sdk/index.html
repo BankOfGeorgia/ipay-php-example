@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+
+        <script id="SDK" type="text/javascript" src="IpaySDK.js?callback=IPayCallBack"></script>
+        <script>
+            IPayCallBack = function() {
+                IpaySDK.Render('bright', {
+                    href: '',
+                    title: 'Pay with iPay',
+                    alt: 'Pay with iPay',
+                    target: '_blank',
+                    text: 'ყიდვა',
+                    cssStyle: '',
+                    data: [
+                        {
+                            value: 'test',
+                            name: 'test',
+                            class: '',
+                            type: 'hidden'
+                        },
+                        {
+                            value: 'test',
+                            name: 'test',
+                            class: '',
+                            type: 'text'
+                        },
+                        {
+                            value: 'test',
+                            name: 'test',
+                            class: '',
+                            type: 'hidden'
+                        }
+                    ]
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <ipay-checkout></ipay-checkout>
+    </body>
+</html>
