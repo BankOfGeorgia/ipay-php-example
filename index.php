@@ -76,9 +76,8 @@ if (isset($_GET['callback']) && isset($_POST['order_id']) && isset($_POST['payme
         $authorizationResponse = ipayAuthorization($ipayAuthorizationURL, $usernameAndPassword);
 
         if ($authorizationResponse["access_token"]) {
-            print_r($authorizationResponse);
             $checkoutResponse = ipayCheckout($authorizationResponse["access_token"], $ipayCheckoutURL, $checkoutDetails);
-            print_r($checkoutResponse);
+
             if (isset($checkoutResponse["status"])) {
                 foreach ($checkoutResponse["links"] as $link) {
                     if ($link["rel"] && $link["rel"] == "self") {
