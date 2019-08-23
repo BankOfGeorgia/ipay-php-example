@@ -34,26 +34,17 @@
             </div>
         </div>
         <div class="description">
-
+            <form method="post">
             <div class="product-title">ტელევიზორი</div>
             <div class="product-price">1.00 ₾</div>
             <textarea rows="4" readonly="readonly" name="description" class="description-text">შემთხვევითად გენერირებული ტექსტი ეხმარება დიზაინერებს და ტიპოგრაფიული ნაწარმის შემქმნელებს, რეალურთან მაქსიმალურად მიახლოებული შაბლონი წარუდგინონ შემფასებელს.</textarea>
-            <ipay-checkout></ipay-checkout>
-
+            <button class="bog-logo-in-long" name="pay">
+                <div class="bog-logo-in-long-left"><img src="../images/bog-logo.png"> <span>ყიდვა</span></div>
+                <img src="../images/cards.png">
+            </button>
+            </form>
         </div>
     </div>
 </div>
-<script id="SDK" type="text/javascript" src="button-sdk/IpaySDK.js?callback=IPayCallBack" async></script>
-<script> IPayCallBack = () => {
-    IpaySDK.Render('default', {
-        href: '',
-        title: 'Pay with iPay',
-        alt: 'Pay with iPay',
-        target: '_blank',
-        text: 'ყიდვა',
-        cssStyle: '',
-        data: [{value: '', name: 'pay', class: '', type: 'hidden'}]
-    });
-} </script>
 </body>
 </html>

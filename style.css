@@ -1,21 +1,29 @@
 @font-face {
     font-family: BOG2018HeadlineSemiBold;
-    src: url('fonts/BOG2018Headline-SemiBold.woff');
+    src: url('https://webstatic.bog.ge/fonts/bog2018/BOG2018Headline-SemiBold.eot');
+    src: url('https://webstatic.bog.ge/fonts/bog2018/BOG2018Headline-SemiBold.woff2') format('woff2'),
+    url('https://webstatic.bog.ge/fonts/bog2018/BOG2018Headline-SemiBold.woff1') format('woff');
 }
 
 @font-face {
     font-family: BOG2018SemiBold;
-    src: url('fonts/BOG2018-SemiBold.woff');
+    src: url('https://webstatic.bog.ge/fonts/bog2018/BOG2018-SemiBold.woff');
+    src: url('https://webstatic.bog.ge/fonts/bog2018/BOG2018-SemiBold.woff2') format('woff2'),
+    url('https://webstatic.bog.ge/fonts/bog2018/BOG2018-SemiBold.woff') format('woff');
 }
 
 @font-face {
     font-family: BOG2018Medium;
-    src: url('fonts/BOG2018-Medium.woff');
+    src: url('https://webstatic.bog.ge/fonts/bog2018/BOG2018-Medium.eot');
+    src: url('https://webstatic.bog.ge/fonts/bog2018/BOG2018-Medium.woff2') format('woff2'),
+    url('https://webstatic.bog.ge/fonts/bog2018/BOG2018-Medium.woff') format('woff');
 }
 
 @font-face {
     font-family: BOG2018SemiBold;
-    src: url('fonts/BOG2018-Bold.woff');
+    src: url('https://webstatic.bog.ge/fonts/bog2018/BOG2018-Bold.eot');
+    src: url('https://webstatic.bog.ge/fonts/bog2018/BOG2018-Bold.woff2') format('woff2'),
+    url('https://webstatic.bog.ge/fonts/bog2018/BOG2018-Bold.woff') format('woff');
 }
 
 body {
@@ -67,11 +75,12 @@ body {
     width: 960px;
     padding-top: 5px;
 }
-.navs > ul{
-    padding-inline-start:0;
+
+.navs > ul {
+    padding-inline-start: 0;
 }
 
-.navs > ul>li {
+.navs > ul > li {
     display: inline;
     height: 24px;
     width: 90px;
@@ -79,14 +88,13 @@ body {
     margin-right: 70px;
 
 }
-a{
+
+a {
     font-family: BOG2018HeadlineSemiBold;
     font-size: 14px;
     color: #ffffff;
     text-decoration: none;
 }
-
-
 
 
 .content {
@@ -159,7 +167,7 @@ button {
     height: 59px;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
     background-color: #fc6719;
-    background-image: linear-gradient(to right,#FC6719,#FF9E1A 50%);
+    background-image: linear-gradient(to right, #FC6719, #FF9E1A 50%);
     cursor: pointer;
     color: #ffffff;
     font-family: MarkGEO, sans-serif;
@@ -175,13 +183,16 @@ button {
     justify-content: space-between;
     align-items: center;
 }
-.bog-logo-in-long:hover{
-    background-image: linear-gradient(to right,#f68448 ,#f9af4d  50%);
+
+.bog-logo-in-long:hover {
+    background-image: linear-gradient(to right, #f68448, #f9af4d 50%);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
 }
+
 .bog-logo-in-long:focus {
     outline: 0;
 }
+
 .bog-logo-in-long-left {
     display: flex;
     flex-direction: row;
@@ -189,9 +200,11 @@ button {
     width: 90px;
     margin-left: 20px;
 }
+
 .bog-logo-in-long img {
     margin-right: 5px;
 }
+
 .bog-logo-in-long span {
     font-family: BOG2018SemiBold;
     font-size: 16px;
