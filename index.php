@@ -33,7 +33,7 @@ if (isset($_GET['callback']) && isset($_POST['order_id']) && isset($_POST['payme
     //თქვენი refund-ის ლოგიკა
 } else {
     require_once "template/index.html";
-    if (isset($_POST['pay']) & !empty($_POST)) {
+    if (isset($_POST) && isset($_POST['pay'])) {
 
         $ipayAuthorizationURL = 'https://dev.ipay.ge/opay/api/v1/oauth2/token'; // IPay ავტორიზაციის ლინკი
 
