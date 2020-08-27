@@ -1,147 +1,149 @@
 <?php
-session_start();
-/**
- * ვამოწმებთ თუ არსებობს პოსტი order_id და payment_hash-ით.
- * თუ სესიაში იძებნება მსგავსი გადახდა ვაბრუნდებთ header response code 200-ს  და თუ არა მაშინ შესაბამის კოდს.
- * ლინკის მაგალითი https://.ge/callback.php?order_id=your_order_id&payment_hash=your_payment_hash
- * https://your_web_page_url/?callback=1&...... - ეს არის თქვენი მაღაზიის ქოლბექების მისამართი
- * p.s შეგიძლიათ შეცვალოთ სურვილისამებრ, ოღონდ უნდა მოგვაწოდოთ რომ ჩვენთან გაიწეროს
- * თუ თქვენგან არასწორი პასუხი დაბრუნდება, ქოლბექები გამეორდება 5 ჯერ და შემდეგ გადავა უარყოფილ სტატუსზე.
- */
-if (isset($_GET['callback']) && isset($_POST['order_id']) && isset($_POST['payment_hash']) && !empty($_POST['order_id']) && !empty($_POST['payment_hash'])) {
-    $ORDER_ID = (isset($_POST['order_id']) && !empty($_POST['order_id']) ? $_POST['order_id'] : null);
-    $PAYMENT_HASH = (isset($_POST['payment_hash']) && !empty($_POST['payment_hash']) ? $_POST['payment_hash'] : null);
-    $STATUS =  $_POST['status']; //გადახდის სტატუსი success||error
-    $STATUS_DESCRIPTION =  $_POST['status_description'];  //გადახდის სტატუსი აღწერა
-    $SHOP_ORDER_ID = (isset($_POST['shop_order_id']) && !empty($_POST['shop_order_id']) ? $_POST['shop_order_id'] : null); // მერჩანტის შეკვეთის იდენტიფიკატორი
-    $PAN = $_POST['pan']; // ბარათის დამაკსული პანი რომლითაც მოხდა ანგარიშსწორება
-    $TRANSACTION_ID = $_POST['transaction_id']; // ტრანზაქციის იდენტიფიკატორი რომელიც საჭიროა რეკურენტული გადახდისთვის
-    $IPAY_PAYMENT_ID = $_POST['ipay_payment_id']; // გადახდის იდენტიფიკატორი რომელიც იბეჭდება ქვითარზე
-    // log($ORDER_ID,$PAYMENT_HASH)
-    foreach ($_SESSION['payment_hash'] as $key => $value) {
-        if ($key == $ORDER_ID && $value == $PAYMENT_HASH) {
-            header("HTTP/1.1 200 Ok");
-        } else {
-            header("HTTP/1.0 404 Not Found");
-        }
-    }
+require_once('template/index.html');
 
-} elseif (isset($_GET['reversal']) && isset($_POST['order_id']) && isset($_POST['payment_hash']) && !empty($_POST['order_id']) && !empty($_POST['payment_hash'])) {
-    $PAYMENTID = (isset($_POST['order_id']) && !empty($_POST['order_id']) ? $_POST['order_id'] : null);
-    $PAYMENT_HASH = (isset($_POST['payment_hash']) && !empty($_POST['payment_hash']) ? $_POST['payment_hash'] : null);
-    $SHOP_ORDER_ID = (isset($_POST['shop_order_id']) && !empty($_POST['shop_order_id']) ? $_POST['shop_order_id'] : null); // მერჩანტის შეკვეთის იდენტიფიკატორი
-    //თქვენი refund-ის ლოგიკა
-} else {
-    require_once "template/index.html";
-    if (isset($_POST) && isset($_POST['pay'])) {
-
-        $ipayAuthorizationURL = 'https://dev.ipay.ge/opay/api/v1/oauth2/token'; // IPay ავტორიზაციის ლინკი
-
-        $ipayCheckoutURL = 'https://dev.ipay.ge/opay/api/v1/checkout/orders'; // IPay გადახდის ლინკი
-
-        $usernameAndPassword = '1006:581ba5eeadd657c8ccddc74c839bd3ad'; // IPay მერჩანტის იდენტიფიკატორი და პაროლი
-
-        $redirect_url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; // პარამეტრში ვუთითებთ იმ მისამართს რომელზეც უნდა გადმოვიდეს მომხმარებელი წარმატებული ან წარუმატებელი გადახდის შემდეგ
-
-        $checkoutDetails = [
-            "intent" => "AUTHORIZE",
-            "redirect_url" => "",
-            "shop_order_id" => "მაღაზიის_შეკვეთის_იდენტიფიკატორი", // არაა სავალდებულო
-            "card_transaction_id" => "",//რეკურენტული გადახდისთვისაა საჭირო. არაა სავალდებულო
-            "locale" => "ka", //ან en-US
-            "purchase_units" => [
-                [
-                    "amount" => [
-                        "currency_code" => "GEL",
-                        "value" => 0
-                    ],
-                    "industry_type" => "ECOMMERCE"
-                ]
+if (isset($_POST['pay']) || isset($_POST['installment']) || isset($_POST['cardpayment'])) {
+    $token = getToken(1006, '581ba5eeadd657c8ccddc74c839bd3ad');
+    $intent = (isset($_POST['pay']) ? 'CAPTURE' : (isset($_POST['cardpayment']) ? 'AUTHORIZE' : 'LOAN'));
+    $items = [
+        0 =>
+            [
+                'amount' => '100.0',
+                'description' => 'desc_1',
+                'product_id' => '11111',
+                'quantity' => 1,
             ],
-            "items" => []
-        ]; //checkout details array
+        1 =>
+            [
+                'amount' => '50.00',
+                'description' => 'desc_2',
+                'product_id' => '11112',
+                'quantity' => 1,
+            ]
+    ];
 
-        $amount = 1.00; //პროდუქტის ფასი
-        $description = "product description text"; //პროდუქტის აღწერა
-        $product_id = "123456789"; //პროდუქტის იდენტიფიკატორი
-        $quantity = 1; //პროდუქტის რაოდენობა
+    $response = makeOrder($token, $intent, '$https://demo.ipay.ge', 'ka', true, $items, null,null);
 
-        array_push($checkoutDetails["items"],
-            ["amount" => $amount, "description" => $description, "product_id" => $product_id, "quantity" => $quantity]); // items-ში უნდა ჩავწეროთ ყველა განსვავებული პროდუქტი თავისი თვისებებით
-
-        $checkoutDetails["purchase_units"][0]["amount"]["value"] = $amount; // მოცემულ ამეტრში ვუთითებთ ჯამურ თანხას
-
-        $checkoutDetails["redirect_url"] = $redirect_url;
-
-        $authorizationResponse = ipayAuthorization($ipayAuthorizationURL, $usernameAndPassword);
-
-        if ($authorizationResponse["access_token"]) {
-            $checkoutResponse = ipayCheckout($authorizationResponse["access_token"], $ipayCheckoutURL, $checkoutDetails);
-
-            if (isset($checkoutResponse["status"])) {
-                foreach ($checkoutResponse["links"] as $link) {
-                    if ($link["rel"] && $link["rel"] == "self") {
-                        $_SESSION['payment_hash'][$checkoutResponse['id']] = $checkoutResponse['payment_hash']; // ეს არის payment_hash, არის უნიკალური გადახდის ჭრილში და დაბრუნდება ..api/v1/checkout/orders დროს.
-                        // ამ ხეშით მოგმართავთ ipay.ge ქოლბექის დროს. სასურველია ბაზაში შეინახოთ გადახდასთან ერთად. ამ შემთხვევაში ვინახავთ სესიაში დემონსტრაცისთვის.
-                    }
-
-                    if ($link["rel"] && $link["rel"] == "approve") {
-                        header("Location:" . $link["href"]);
-                    }
-                }
-            } else {
-                print_r($checkoutResponse);
-            }
-        } else {
-            print_r($authorizationResponse);
-        }
+    if (isset($response['order_id'])) {
+        $payment_hash = $response['payment_hash'];
+        $order_id = $response['order_id'];
+        $redirect_url = $response['links'][1]['href'];
+        header("Location:" . $redirect_url);
     }
 }
 
-/**
- * @param $ipayAuthorizationURL
- * @param $usernameAndPassword
- * @return bool|mixed
- */
-
-function ipayAuthorization($ipayAuthorizationURL, $usernameAndPassword)
+function getToken($client_id, $secret_key)
 {
-    $options = (array(
-        "http" => array(
-            "method" => "POST",
-            "header" => "Content-type: application/x-www-form-urlencoded\r\n" . "Authorization: Basic " . base64_encode($usernameAndPassword),
-            "content" => http_build_query(array("grant_type" => "client_credentials"))
-        )
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+
+        //For production replace https://dev.ipay.ge/ to https://ipay.ge
+        CURLOPT_URL => "https://dev.ipay.ge/opay/api/v1/oauth2/token",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+
+        //The "grant_type=client_credentials" means that you are sending a username and a password to the "oauth2/token" endpoint
+        CURLOPT_POSTFIELDS => "grant_type=client_credentials",
+        CURLOPT_HTTPHEADER => [
+            "Content-Type: application/x-www-form-urlencoded",
+
+            //iPay client_id and secret_key in base64
+            "Authorization: Basic " . base64_encode($client_id . ':' . $secret_key)
+        ],
     ));
 
-    $context = stream_context_create($options);
+    $response = curl_exec($curl);
 
-    $response = json_decode(file_get_contents($ipayAuthorizationURL, false, $context), true);
-    if (isset($response["access_token"])) {
-        return $response;
-    }
-    return false;
+    curl_close($curl);
+    $response = json_decode($response, true);
+    return $response['access_token']; //access token from response
+
 }
 
-/**
- * @param $token
- * @param $ipayCheckoutURL
- * @param $checkoutDetails
- * @return bool|mixed
- */
-function ipayCheckout($token, $ipayCheckoutURL, $checkoutDetails)
+function makeOrder($token, $intent, $redirect_url, $locale, $show_shop_order_id_on_extract, $items, $loan_code,$card_transaction_id)
 {
-    $options = (array(
-        "http" => array(
-            "method" => "POST",
-            "header" => "Content-type: application/json \r\n" . "Authorization: Bearer " . $token,
-            "content" => json_encode($checkoutDetails)
-        )
+    $postfields = [
+        /**
+         * CAPTURE – provides several payment options for users, on the same page. Payment can be performed
+         * by card and with BOG digital credentials ( username & password )
+         * AUTHORIZE – Allows users to pay only with entering card details.
+         * LOAN - users can pay with only installment option. For this
+         * user should enter BOG credentials, username / password and go through
+         * installment payment process.
+         */
+        // ENUM: CAPTURE, AUTHORIZE, LOAN
+        'intent' => $intent,
+
+        //URL of the page to which the payer will be redirected after a success/failure payment. Does not contain any data
+        'redirect_url' => $redirect_url,
+
+        //Shop order id
+        'shop_order_id' => '123465',
+
+        //Used for recurring payment. Optional
+        'card_transaction_id' => $card_transaction_id,
+
+        //Default: "ka". Enum: "ka" "en-US". Localization on which ipay.ge payment page will be displayed. Defaulted to ka if not provided or invalid.
+        'locale' => $locale,
+
+        //BOOLEAN. If the value is true, shop_order_id will appear in the extract. default: true
+        'show_shop_order_id_on_extract' => $show_shop_order_id_on_extract,
+
+        //Used in case the offer is valid for installment plan.
+        'loan_code' => $loan_code,
+
+        'purchase_units' =>
+            [
+                0 =>
+                    [
+                        'amount' =>
+                            [
+                                //Enum: "GEL" "USD" "EUR"
+                                'currency_code' => 'GEL',
+
+                                //Total amount
+                                'value' => '150',
+                            ],
+                        'industry_type' => 'ECOMMERCE',
+                    ],
+            ],
+        //product list - optional
+        'items' => $items
+        ,
+    ];
+
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+
+        //For production replace https://dev.ipay.ge/ to https://ipay.ge
+        CURLOPT_URL => "https://dev.ipay.ge/opay/api/v1/checkout/orders",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => json_encode($postfields),
+        CURLOPT_HTTPHEADER => array(
+            "Content-Type: application/json",
+
+            //access token
+            "Authorization: Bearer " . $token
+        ),
     ));
-    $context = stream_context_create($options);
-    $response = json_decode(file_get_contents($ipayCheckoutURL, false, $context), true);
-    if (isset($response["status"])) {
-        return $response;
-    }
-    return false;
+
+    $response = curl_exec($curl);
+
+    curl_close($curl);
+    $response = json_decode($response, true);
+    return $response;
 }
+
+//EOF

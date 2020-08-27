@@ -34,14 +34,20 @@
             </div>
         </div>
         <div class="description">
-            <form method="post">
-            <div class="product-title">ტელევიზორი</div>
-            <div class="product-price">1.00 ₾</div>
-            <textarea rows="4" readonly="readonly" name="description" class="description-text">შემთხვევითად გენერირებული ტექსტი ეხმარება დიზაინერებს და ტიპოგრაფიული ნაწარმის შემქმნელებს, რეალურთან მაქსიმალურად მიახლოებული შაბლონი წარუდგინონ შემფასებელს.</textarea>
-            <button class="bog-logo-in-long" name="pay">
-                <div class="bog-logo-in-long-left"><img src="../images/bog-logo.png"> <span>ყიდვა</span></div>
-                <img src="../images/cards.png">
-            </button>
+            <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+                <div class="product-title">ტელევიზორი</div>
+                <div class="product-price">150.00 ₾</div>
+                <textarea rows="4" readonly="readonly" name="description" class="description-text">შემთხვევითად გენერირებული ტექსტი ეხმარება დიზაინერებს და ტიპოგრაფიული ნაწარმის შემქმნელებს, რეალურთან მაქსიმალურად მიახლოებული შაბლონი წარუდგინონ შემფასებელს.</textarea>
+                <button class="bog-logo-in-long" name="pay">
+                    <div class="bog-logo-in-long-left"><img src="../images/bog-logo.png"> <span>ყიდვა</span></div>
+                    <img src="../images/cards.png">
+                </button>
+                <br>
+                <button class="bog-logo-in-long" name="installment">
+                    <div class="bog-logo-in-long-left-2"><img src="../images/bog-logo.png"> <span>განვადებით ყიდვა</span></div>
+                </button>
+
+
             </form>
         </div>
     </div>
