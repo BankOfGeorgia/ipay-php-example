@@ -21,7 +21,7 @@ if (isset($_POST['pay']) || isset($_POST['installment']) || isset($_POST['cardpa
             ]
     ];
 
-    $response = makeOrder($token, $intent, '$https://demo.ipay.ge', 'ka', true, $items, null,null);
+    $response = makeOrder($token, $intent, 'https://demo.ipay.ge', 'ka', true, $items, null,null);
 
     if (isset($response['order_id'])) {
         $payment_hash = $response['payment_hash'];
